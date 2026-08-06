@@ -12,6 +12,7 @@ permissions:
   pages: write
   id-token: write
 
+# Бір уақытта бір ғана Pages deployment жүреді
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -48,6 +49,6 @@ jobs:
         with:
           path: ./dist
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

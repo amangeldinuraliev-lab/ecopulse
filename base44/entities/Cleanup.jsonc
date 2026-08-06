@@ -1,0 +1,48 @@
+{
+  "name": "Cleanup",
+  "type": "object",
+  "properties": {
+    "beach_name": {
+      "type": "string"
+    },
+    "before_url": {
+      "type": "string"
+    },
+    "after_url": {
+      "type": "string"
+    },
+    "lat": {
+      "type": "number"
+    },
+    "lng": {
+      "type": "number"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "improvement_percent": {
+      "type": "number"
+    },
+    "coins_awarded": {
+      "type": "number",
+      "default": 0
+    },
+    "waste_kg": {
+      "type": "number"
+    },
+    "ai_verdict": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "before_url",
+    "after_url"
+  ]
+}

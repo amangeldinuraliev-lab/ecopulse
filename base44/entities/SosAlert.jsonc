@@ -1,0 +1,62 @@
+{
+  "name": "SosAlert",
+  "type": "object",
+  "properties": {
+    "photo_url": {
+      "type": "string"
+    },
+    "lat": {
+      "type": "number"
+    },
+    "lng": {
+      "type": "number"
+    },
+    "location_note": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "oil_spill",
+        "dead_fish",
+        "dead_seal",
+        "illegal_dump",
+        "illegal_fishing",
+        "accident",
+        "other"
+      ],
+      "default": "other"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "ai_analysis": {
+      "type": "string"
+    },
+    "official_message": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "new"
+    },
+    "reporter_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "photo_url"
+  ]
+}

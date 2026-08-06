@@ -1,0 +1,41 @@
+{
+  "name": "CommunityPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "location_note": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "number",
+      "default": 5
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "ai_moderation": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "flagged",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "ai_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "photo_url"
+  ]
+}

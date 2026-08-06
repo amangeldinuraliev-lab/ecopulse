@@ -1,0 +1,55 @@
+{
+  "name": "EcoTourLocation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "beach",
+        "canyon",
+        "reserve",
+        "landmark",
+        "spring"
+      ],
+      "default": "beach"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "route_info": {
+      "type": "string"
+    },
+    "road_condition": {
+      "type": "string",
+      "enum": [
+        "good",
+        "moderate",
+        "rough"
+      ],
+      "default": "moderate"
+    },
+    "distance_km": {
+      "type": "number"
+    },
+    "lat": {
+      "type": "number"
+    },
+    "lng": {
+      "type": "number"
+    },
+    "rating": {
+      "type": "number",
+      "default": 4.5
+    }
+  },
+  "required": [
+    "name",
+    "photo_url"
+  ]
+}

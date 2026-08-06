@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
+<Route path="/api/apps/auth/login" element={<Login />} />
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

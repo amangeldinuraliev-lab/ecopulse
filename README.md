@@ -1,77 +1,218 @@
-# Base44 Project
+Ecopulse — Каспий жағалауының экологиялық мониторингі
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+Жоба туралы
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+**Ecopulse** — Каспий теңізі жағалауы мен Маңғыстау өңірінің экологиялық жағдайын бақылауға арналған цифрлық платформа.
 
-## Prerequisites
+Жобаның негізгі мақсаты — экологиялық мәселелер туралы ақпаратты бір жерге жинақтап, пайдаланушыға қоршаған ортаның жағдайын түсінікті түрде көрсету және экологиялық мәселелерді анықтауға көмектесу.
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
+Ecopulse платформасында ауа сапасы, топырақ жағдайы, су мониторингі, жағалау жағдайы және экологиялық мәселелер туралы ақпарат интерактивті карта және арнайы мониторинг бөлімдері арқылы көрсетіледі.
 
-See the [Base44 CLI docs](https://docs.base44.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
+Жоба экологиялық мониторингті цифрландыруға және азаматтардың қоршаған ортаға жауапкершілігін арттыруға бағытталған.
 
-## Run Locally
+ Жобаның мақсаты
 
-Run the full local development environment from the project root:
+Ecopulse жобасының негізгі мақсаттары:
 
-```bash
-base44 dev
-```
+- Каспий жағалауының экологиялық жағдайын бақылау;
+- ауа сапасы туралы ақпаратты көрсету;
+- топырақтың ластану жағдайын бақылау;
+- мұнай әсерін және экологиялық тәуекелдерді бағалау;
+- қоқыс деңгейін бақылау;
+- өсімдік жамылғысының өзгерісін бақылау;
+- жағалау эрозиясын бақылау;
+- экологиялық ақпаратты интерактивті карта арқылы көрсету;
+- пайдаланушыға экологиялық жағдайды түсінікті түрде ұсыну;
+- болашақта нақты датчиктер мен сыртқы API деректерін интеграциялау.
 
-`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
+ Негізгі функциялар
 
-For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
+Ауа сапасын мониторингтеу
 
-```json5
-{
-  "site": {
-    "serveCommand": "npm run dev"
-  }
-}
-```
+Ecopulse ауа сапасы бөлімінде келесі көрсеткіштер көрсетіледі:
 
-In a Base44 project this lives in `base44/config.jsonc`.
+- AQI — ауа сапасының индексі;
+- PM2.5;
+- PM10;
+- CO;
+- NO₂;
+- SO₂;
+- O₃;
+- температура;
+- жел жылдамдығы;
+- жел бағыты;
+- ауа ылғалдылығы.
 
-## Run Only The Frontend
+Деректер интерактивті картада орналасқан нүктелер арқылы көрсетіледі.
 
-If you only want to work on the frontend against the hosted Base44 backend, run:
+Топырақ мониторингі
 
-```bash
-npm run dev
-```
+Топырақ мониторингі бөлімінде:
 
-Open the local URL printed by Vite.
+- топырақ ластануы;
+- мұнай әсері;
+- қоқыс деңгейі;
+- өсімдік жамылғысының өзгеруі;
+- жағалау эрозиясы
 
-## Use The Hosted Backend
+сияқты экологиялық индикаторлар көрсетіледі.
 
-For frontend-only development, create or update `.env.local` in the project root:
+Сонымен қатар жүйеде AI негізіндегі экологиялық бағалау бөлімі қарастырылған.
 
-```bash
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
-```
+> Ескерту: қазіргі демонстрациялық нұсқада мониторинг деректерінің бір бөлігі демонстрациялық деректер ретінде пайдаланылады. Болашақ нұсқада нақты датчиктер мен сенімді сыртқы дереккөздерді қосу жоспарланған.
 
-`VITE_BASE44_APP_ID` identifies the Base44 app.
+Интерактивті карта
 
-`VITE_BASE44_APP_BASE_URL` tells the Base44 Vite plugin where to send local `/api` requests. Point it at your deployed Base44 app URL when you want the local frontend to use the hosted backend.
+Жоба Leaflet және OpenStreetMap негізіндегі интерактивті картаны пайдаланады.
 
-When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
+Картада экологиялық мониторинг нүктелері көрсетіледі.
 
-## Publish Your Changes
+Пайдаланушы картадағы нүктені таңдау арқылы тиісті аймақтың экологиялық жағдайы туралы ақпарат ала алады.
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+---
+EcoSOS
 
-```bash
-base44 dashboard open
-```
+EcoSOS — экологиялық мәселе туралы хабарлауға арналған функционал.
 
-## Docs & Support
+Пайдаланушы қоршаған ортадағы мәселені хабарлай алады.
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+Мысалы:
 
-Base44 CLI command reference: [https://docs.base44.com/developers/references/cli/commands/introduction](https://docs.base44.com/developers/references/cli/commands/introduction)
+- қоқыс;
+- жағалаудың ластануы;
+- мұнай төгілуі;
+- экологиялық қауіп;
+- басқа да проблемалар.
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+---
+
+EcoCoin
+
+EcoCoin — пайдаланушыларды экологиялық белсенділікке ынталандыруға арналған жүйе.
+
+Пайдаланушының экологиялық әрекеттерін ынталандыру үшін виртуалды ұпай/монета механизмі қарастырылған.
+
+---
+
+Жоба құрылымы
+
+```text
+ecopulse/
+│
+├── src/
+│   ├── api/
+│   │   └── base44Client.js
+│   │
+│   ├── components/
+│   │   ├── AuthLayout.jsx
+│   │   ├── GoogleLogin.jsx
+│   │   ├── Layout.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   └── ...
+│   │
+│   ├── pages/
+│   │   ├── AirQuality.jsx
+│   │   ├── SoilMonitoring.jsx
+│   │   ├── WaterMonitoring.jsx
+│   │   ├── Cleanup.jsx
+│   │   ├── EcoSOS.jsx
+│   │   ├── EcoTour.jsx
+│   │   ├── MapPage.jsx
+│   │   ├── Profile.jsx
+│   │   ├── Wallet.jsx
+│   │   └── ...
+│   │
+│   ├── lib/
+│   │   ├── app-params.js
+│   │   ├── AuthContext.jsx
+│   │   ├── ecoHelpers.js
+│   │   └── ...
+│   │
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+│
+├── public/
+│
+├── package.json
+├── vite.config.js
+├── tailwind.config.js
+└── README.md
+
+Минималды жүйелік талаптар
+
+Жобаны іске қосу үшін:
+
+Windows 10/11, macOS немесе Linux;
+Node.js 20 немесе одан жоғары;
+npm 10 немесе одан жоғары;
+Git;
+интернет байланысы;
+заманауи веб-браузер:
+Google Chrome;
+Microsoft Edge;
+Mozilla Firefox;
+Safari.
+
+Қолданылған технологиялар
+Frontend
+React
+Vite
+JavaScript
+Tailwind CSS
+React Router
+
+UI
+Lucide React
+
+Карта
+React Leaflet
+Leaflet
+OpenStreetMap
+
+Backend / Data
+Base44 SDK
+Base44 Entities
+
+Development
+Git
+GitHub
+npm
+
+Жүйенің жұмыс принципі
+
+Жобаның жалпы жұмыс логикасы:
+
+Экологиялық дерек
+       ↓
+Base44 / Data Source
+       ↓
+Ecopulse API Client
+       ↓
+React интерфейсі
+       ↓
+Интерактивті карта
+       ↓
+Пайдаланушыға экологиялық ақпарат
+Даму жоспары
+
+Жобаның келесі кезеңдерінде:
+
+Нақты экологиялық датчиктерді қосу;
+Ауа сапасының нақты API-ын интеграциялау;
+Топырақ мониторингіне нақты зертханалық деректерді қосу;
+Спутниктік суреттер арқылы жағалау өзгерістерін бақылау;
+AI көмегімен экологиялық қауіптерді анықтау;
+EcoSOS хабарламаларын автоматты өңдеу;
+Экологиялық карта қабаттарын көбейту;
+EcoCoin жүйесін дамыту;
+Мобильді нұсқа жасау;
+Маңғыстау облысының басқа аумақтарына масштабтау.
+ Жоба авторлары
+
+Ecopulse командасы:
+
+Еділ — жоба идеясы, презентация және жоба концепциясы;
+Сәлима — өнімді көрсету және негізгі функционалдар;
+Кенесары — жобаның даму бағыты;
+Амангелді — техникалық бөлім және әзірлеу.

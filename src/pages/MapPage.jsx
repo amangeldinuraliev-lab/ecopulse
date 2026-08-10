@@ -1,86 +1,139 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Layers } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useLang } from '@/lib/i18n';
-import DigitalTwinMap from '@/components/DigitalTwinMap';
-import PollutionBadge from '@/components/PollutionBadge';
-import { computeHealth, HEALTH_BANDS } from '@/lib/health';
-import { findBeach } from '@/lib/beaches';
-import { MapPin } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
+import { aqiCategory, statusInfo } from '@/lib/ecoHelpers';
 
-const DEFAULT_LAYERS = { water: true, seal: true, sturgeon: true, oil: true, waste: true, sos: true, citizen: true };
-
-// үлгілік мұнай дақтары (спутник дерегінің орнына)
-const OIL_PATCHES = [{ lat: 43.6, lng: 51.1 }, { lat: 44.5, lng: 50.3 }, { lat: 47.0, lng: 51.9 }];
-const SEALS = [{ lat: 43.66, lng: 51.14, name: 'Каспий итбалығы — байқау', note: '3 дария көрінді' }, { lat: 44.5, lng: 50.25, name: 'Итбалық колониясы', note: 'Тыныш аймақ' }];
+const LAYER_DEFS = [
+  { key: 'health', label: '🌊 Caspian Health', color: '#0891b2' },
+  { key: 'coastline', label: '🏖️ Coastline', color: '#14b8a6' },
+  { key: 'air', label: '🌬️ Air Quality', color: '#0ea5e9' },
+  { key: 'water', label: '💧 Water', color: '#22d3ee' },
+  { key: 'soil', label: '🌱 Soil & Land', color: '#84cc16' },
+  { key: 'waste', label: '🗑️ Waste', color: '#64748b' },
+  { key: 'seal', label: '🦭 Seal incidents', color: '#3b82f6' },
+  { key: 'fish', label: '🐟 Fish incidents', color: '#06b6d4' },
+  { key: 'oil', label: '🛢️ Oil spills', color: '#1f2937' },
+  { key: 'ecosos', label: '🚨 EcoSOS', color: '#ef4444' },
+  { key: 'ecotour', label: '📍 EcoTour', color: '#8b5cf6' },
+];
 
 export default function MapPage() {
-  const { t } = useLang();
-  const [layers, setLayers] = useState(DEFAULT_LAYERS);
-  const [reports, setReports] = useState([]);
+  const { t } = useI18n();
+  const [layers, setLayers] = useState({ health: true, coastline: true, air: true, water: true, soil: true, waste: true, seal: true, fish: true, oil: true, ecosos: true, ecotour: true });
+  const [beaches, setBeaches] = useState([]);
+  const [air, setAir] = useState([]);
+  const [soil, setSoil] = useState([]);
+  const [sos, setSos] = useState([]);
+  const [tour, setTour] = useState([]);
   const [cleanups, setCleanups] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [community, setCommunity] = useState([]);
-  const [active, setActive] = useState(null);
+  const [water, setWater] = useState([]);
 
   useEffect(() => {
-    base44.entities.BeachReport.list('-created_date', 200).then(setReports);
-    base44.entities.Cleanup.list('-created_date', 200).then(setCleanups);
-    base44.entities.SosAlert.list('-created_date', 200).then(setAlerts);
-    base44.entities.CommunityPost.list('-created_date', 200).then(setCommunity);
+    (async () => {
+      try {
+        const [b, a, s, so, to, c, w] = await Promise.all([
+          base44.entities.Beach.list(),
+          base44.entities.AirQualityReading.list(),
+          base44.entities.SoilMonitoringReading.list(),
+          base44.entities.EcoSOSReport.list(),
+          base44.entities.EcoTourLocation.list(),
+          base44.entities.TrashCleanup.list(),
+          base44.entities.WaterMonitoringReading.list(),
+        ]);
+        setBeaches(b); setAir(a); setSoil(s); setSos(so); setTour(to); setCleanups(c); setWater(w);
+      } catch (e) { console.error(e); }
+    })();
   }, []);
 
-  const coords = (r) => { if (r.lat && r.lng) return { lat: r.lat, lng: r.lng }; const b = findBeach(r.beach_name); return b || null; };
-
-  const points = useMemo(() => ({
-    oil: OIL_PATCHES,
-    seal: SEALS,
-    waste: reports.map((r) => { const c = coords(r); return c && { ...c, name: r.beach_name || 'Бағалау', note: `Ластану: ${Math.round(r.pollution_score || 0)}/100` }; }).filter(Boolean),
-    sos: alerts.filter((a) => a.lat && a.lng).map((a) => ({ lat: a.lat, lng: a.lng, name: 'EcoSOS', note: a.location_note || a.ai_analysis })),
-    citizen: community.map((p) => ({ lat: 43.6 + Math.random() * 0.1, lng: 51.1 + Math.random() * 0.1, name: p.title, note: p.location_note })).slice(0, 10),
-  }), [reports, alerts, community]);
-
-  const health = computeHealth(reports, alerts);
+  const toggle = (k) => setLayers((p) => ({ ...p, [k]: !p[k] }));
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{t('nav.map')}</h1>
-          <p className="text-muted-foreground mt-2">Caspian Digital Twin — қабаттарды қосып-өшіріп зертте.</p>
-        </div>
-        <div className="flex items-center gap-3 bg-card rounded-2xl px-4 py-2 border border-teal-500/10">
-          <div className="text-xs text-muted-foreground">{t('home.health')}</div>
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: (HEALTH_BANDS[health.band] || HEALTH_BANDS.moderate).from }} />
-          <div className="font-semibold">{health.score}<span className="text-muted-foreground text-sm font-normal">/100</span></div>
-        </div>
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <Layers className="w-6 h-6 text-teal-600" /> {t('mapTitle')}
+        </h1>
+        <p className="text-sm text-slate-500">Mangistau — Caspian coast</p>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-start">
-        <DigitalTwinMap layers={layers} onToggle={(k) => setLayers((l) => ({ ...l, [k]: !l[k] }))} points={points} active={active} onSelect={setActive} />
-
-        <div className="space-y-4">
-          <div className="bg-card rounded-3xl p-5 border border-teal-500/10">
-            <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground mb-3">Легенда</div>
-            {[
-              { c: '#10b981', l: t('water.clean') },
-              { c: '#f59e0b', l: t('water.moderate') },
-              { c: '#ef4444', l: t('water.polluted') },
-            ].map((x) => (
-              <div key={x.l} className="flex items-center gap-2.5 py-1 text-sm"><span className="w-3 h-3 rounded-full" style={{ background: x.c }} /><span className="text-muted-foreground">{x.l}</span></div>
-            ))}
-          </div>
-
-          <div className="bg-card rounded-3xl p-5 border border-teal-500/10 space-y-3">
-            <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Аймақ баяндамалары</div>
-            {reports.slice(0, 5).map((r) => (
-              <button key={r.id} onClick={() => setActive({ name: r.beach_name, note: r.ai_summary })} className="w-full flex items-center justify-between gap-2 text-left">
-                <span className="text-sm flex items-center gap-2 truncate"><MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />{r.beach_name}</span>
-                <PollutionBadge level={r.pollution_level} />
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {LAYER_DEFS.map((l) => (
+          <button key={l.key} onClick={() => toggle(l.key)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${layers[l.key] ? 'bg-white border-slate-300 text-slate-800 shadow-sm' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
+            <span className="w-2 h-2 rounded-full inline-block mr-1.5" style={{ background: layers[l.key] ? l.color : '#cbd5e1' }} />
+            {l.label}
+          </button>
+        ))}
       </div>
+
+      <div className="rounded-2xl overflow-hidden border border-slate-200 h-[600px]">
+        <MapContainer center={[43.65, 51.0]} zoom={8} className="h-full w-full">
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
+
+          {layers.coastline && beaches.map((b, i) => (
+            <CircleMarker key={`b${i}`} center={[b.lat, b.lng]} radius={10}
+              pathOptions={{ color: statusInfo(b.coastal_status).color, fillColor: statusInfo(b.coastal_status).color, fillOpacity: 0.8 }}>
+              <Popup>
+                <strong>{b.name}</strong><br />{t(b.coastal_status)} · ⭐ {b.visitor_rating || '—'}<br />
+                <Link to={`/beach/${b.id}`} className="text-teal-600 font-medium text-xs">{t('beachReviews')} →</Link>
+              </Popup>
+            </CircleMarker>
+          ))}
+
+          {layers.water && water.map((r, i) => (
+            <CircleMarker key={`wtr${i}`} center={[r.lat, r.lng]} radius={13}
+              pathOptions={{ color: statusInfo(r.overall_status).color, fillColor: statusInfo(r.overall_status).color, fillOpacity: 0.6 }}>
+              <Popup><strong>{r.location_name}</strong><br />{t('waterQualityScore')}: {r.water_quality_score}</Popup>
+            </CircleMarker>
+          ))}
+
+          {layers.air && air.map((r, i) => {
+            const c = aqiCategory(r.aqi);
+            return (
+              <CircleMarker key={`a${i}`} center={[r.lat, r.lng]} radius={14}
+                pathOptions={{ color: c.color, fillColor: c.color, fillOpacity: 0.6 }}>
+                <Popup><strong>{r.location_name}</strong><br />AQI: {r.aqi} — {t(c.key)}</Popup>
+              </CircleMarker>
+            );
+          })}
+
+          {layers.soil && soil.map((r, i) => {
+            const c = statusInfo(r.overall_status);
+            return (
+              <CircleMarker key={`s${i}`} center={[r.lat, r.lng]} radius={12}
+                pathOptions={{ color: c.color, fillColor: c.color, fillOpacity: 0.5 }}>
+                <Popup><strong>{r.location_name}</strong><br />{t(r.overall_status)}</Popup>
+              </CircleMarker>
+            );
+          })}
+
+          {layers.ecosos && sos.map((r, i) => (
+            <CircleMarker key={`sos${i}`} center={[r.lat, r.lng]} radius={10}
+              pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.7 }}>
+              <Popup><strong>{r.location_name}</strong><br />{r.type}<br />{r.description}</Popup>
+            </CircleMarker>
+          ))}
+
+          {layers.waste && cleanups.map((r, i) => (
+            <CircleMarker key={`w${i}`} center={[43.65, 51.17]} radius={6}
+              pathOptions={{ color: '#64748b', fillColor: '#64748b', fillOpacity: 0.6 }}>
+              <Popup>🗑️ {r.location_name || 'Cleanup'}</Popup>
+            </CircleMarker>
+          ))}
+
+          {layers.ecotour && tour.map((r, i) => (
+            <CircleMarker key={`t${i}`} center={[r.lat, r.lng]} radius={10}
+              pathOptions={{ color: '#8b5cf6', fillColor: '#8b5cf6', fillOpacity: 0.7 }}>
+              <Popup><strong>{r.name}</strong><br />⭐ {r.rating || '—'}</Popup>
+            </CircleMarker>
+          ))}
+        </MapContainer>
+      </div>
+      <p className="text-xs text-slate-400">Карта OpenStreetMap негізінде. Google Maps-ке ауыстыру үшін VITE_GOOGLE_MAPS_API_KEY керек.</p>
     </div>
   );
 }
